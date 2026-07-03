@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # NetMon — Local Network Monitoring Dashboard
 
 Self-hosted, real-time Internet quality monitoring: ping/DNS/HTTP/speedtest
@@ -119,3 +120,7 @@ frontend at build time via Vite `import.meta.env`.
 
 See `STANDARDS.md` for coding conventions enforced across both stacks.
 # netmon-python
+=======
+# netmon-python
+network monitoring using python
+>>>>>>> abeb7d6aaef3b83768f9f453843c0b8fd2d23f12
