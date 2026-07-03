@@ -8,6 +8,8 @@ backend/.mypy_cache/
 backend/.ruff_cache/
 backend/htmlcov/
 backend/.coverage
+backend/*gz
+backend/*tar
 
 # Runtime data — never commit captured traffic, monitoring history, or secrets
 backend/data/
