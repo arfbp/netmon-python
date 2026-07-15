@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # NetMon — Local Network Monitoring Dashboard
 
 Self-hosted, real-time Internet quality monitoring: ping/DNS/HTTP/speedtest
@@ -119,8 +118,20 @@ validated at startup, fails fast on misconfiguration) is implemented in
 frontend at build time via Vite `import.meta.env`.
 
 See `STANDARDS.md` for coding conventions enforced across both stacks.
-# netmon-python
-=======
-# netmon-python
-network monitoring using python
->>>>>>> abeb7d6aaef3b83768f9f453843c0b8fd2d23f12
+
+## Docker deployment
+
+The repository includes a two-container Docker setup under `docker/`:
+
+- `docker/backend.Dockerfile` builds the FastAPI API container
+- `docker/frontend.Dockerfile` builds the Nginx static frontend
+- `docker/docker-compose.yml` wires them together and reads backend env from `backend/.env` on the host
+
+Start it with:
+
+```bash
+cd docker
+docker compose up --build -d
+```
+
+The frontend is served on `http://localhost:8080` and proxies API/WebSocket traffic to the backend container. Backend config stays outside the image, so you can update `backend/.env` on the host and restart the backend container without rebuilding the backend image.
