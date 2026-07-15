@@ -1,21 +1,35 @@
-FROM python:3.13-slim
+FROM python:3.13-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
-WORKDIR /app/backend
-
-RUN addgroup --system app && adduser --system --ingroup app app \
-    && mkdir -p /app/data /app/logs \
-    && chown -R app:app /app
+WORKDIR /build/backend
 
 COPY backend/pyproject.toml backend/README.md ./
 COPY backend/app ./app
 COPY backend/alembic ./alembic
 
 RUN pip install --upgrade pip \
-    && pip install .
+    && pip wheel --wheel-dir /wheels .
+
+FROM python:3.13-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+RUN addgroup --system app \
+    && adduser --system --ingroup app app \
+    && mkdir -p /app/data /app/logs \
+    && chown -R app:app /app
+
+COPY --from=builder /wheels /wheels
+
+RUN pip install --no-cache-dir --no-compile /wheels/*.whl \
+    && rm -rf /wheels
 
 USER app
 
