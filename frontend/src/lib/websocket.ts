@@ -27,11 +27,19 @@ export class MonitoringSocket {
   private disconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private intentionallyClosed = false;
 
+  private clearReconnectTimer(): void {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+  }
+
   connect(): void {
     if (this.disconnectTimer) {
       clearTimeout(this.disconnectTimer);
       this.disconnectTimer = null;
     }
+    this.clearReconnectTimer();
     this.intentionallyClosed = false;
 
     if (this.socket && this.socket.readyState <= WebSocket.OPEN) {
@@ -43,7 +51,7 @@ export class MonitoringSocket {
 
   disconnect(): void {
     this.intentionallyClosed = true;
-    if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+    this.clearReconnectTimer();
     if (this.disconnectTimer) clearTimeout(this.disconnectTimer);
     this.disconnectTimer = setTimeout(() => {
       this.socket?.close();
@@ -70,6 +78,7 @@ export class MonitoringSocket {
 
     socket.onopen = () => {
       this.reconnectAttempt = 0;
+      this.clearReconnectTimer();
       this.setStatus("connected");
     };
 
@@ -87,6 +96,9 @@ export class MonitoringSocket {
     };
 
     socket.onclose = () => {
+      if (this.socket === socket) {
+        this.socket = null;
+      }
       this.setStatus("disconnected");
       if (!this.intentionallyClosed) this.scheduleReconnect();
     };
