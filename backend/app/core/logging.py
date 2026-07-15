@@ -50,14 +50,21 @@ def configure_logging(config: LoggingConfig) -> None:
     console_handler.setFormatter(formatter)
     root.addHandler(console_handler)
 
-    file_handler = logging.handlers.RotatingFileHandler(
-        filename=Path(config.dir) / "netmon.log",
-        maxBytes=10 * 1024 * 1024,  # 10 MB per file
-        backupCount=5,  # keep 5 rotated files (~50 MB ceiling)
-        encoding="utf-8",
-    )
-    file_handler.setFormatter(formatter)
-    root.addHandler(file_handler)
+    try:
+        file_handler = logging.handlers.RotatingFileHandler(
+            filename=Path(config.dir) / "netmon.log",
+            maxBytes=10 * 1024 * 1024,  # 10 MB per file
+            backupCount=5,  # keep 5 rotated files (~50 MB ceiling)
+            encoding="utf-8",
+        )
+    except OSError:
+        root.warning(
+            "logging.file_handler_disabled",
+            extra={"log_dir": str(config.dir)},
+        )
+    else:
+        file_handler.setFormatter(formatter)
+        root.addHandler(file_handler)
 
     # Third-party libraries are noisy at DEBUG; keep them at WARNING even
     # when our own app is in debug mode, unless explicitly overridden.

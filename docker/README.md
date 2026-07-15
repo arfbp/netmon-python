@@ -11,6 +11,18 @@ Run it from this folder:
 docker compose up --build -d
 ```
 
+On Windows PowerShell, you can also use:
+
+```powershell
+.uild.ps1
+```
+
+Build only:
+
+```powershell
+.uild.ps1 -BuildOnly
+```
+
 Environment:
 
 - Backend reads `../backend/.env` from the host via `env_file`
