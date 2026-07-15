@@ -6,8 +6,8 @@ services:
     env_file:
       - ../backend/.env
     volumes:
-      - ../backend/data:/app/data
-      - ../backend/logs:/app/logs
+      - backend_data:/app/data
+      - backend_logs:/app/logs
     restart: unless-stopped
 
   frontend:
@@ -19,3 +19,7 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
+
+volumes:
+  backend_data:
+  backend_logs:
