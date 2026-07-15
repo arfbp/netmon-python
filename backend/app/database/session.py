@@ -19,6 +19,8 @@ from functools import lru_cache
 from pathlib import Path
 from urllib.parse import urlparse
 
+from alembic import command
+from alembic.config import Config
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import (
@@ -147,6 +149,19 @@ async def init_models(config: DatabaseConfig, *, echo: bool = False) -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     logger.info("database.models_initialized", extra={"url": config.url})
+
+
+def upgrade_database(config: DatabaseConfig) -> None:
+    """Apply Alembic migrations up to `head`.
+
+    The current working directory must contain `alembic.ini` and the
+    `alembic/` folder. That is true in the backend project root and in
+    the Docker runtime image.
+    """
+    _ensure_sqlite_parent_dir_exists(config.url)
+    alembic_config = Config(str(Path.cwd() / "alembic.ini"))
+    command.upgrade(alembic_config, "head")
+    logger.info("database.migrations_applied", extra={"url": config.url})
 
 
 async def dispose_engine(config: DatabaseConfig) -> None:

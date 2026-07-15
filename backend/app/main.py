@@ -20,7 +20,7 @@ from app.api.v1.router import api_v1_router
 from app.api.websocket import router as websocket_router
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging, get_logger
-from app.database.session import dispose_engine, get_sessionmaker, init_models
+from app.database.session import dispose_engine, get_sessionmaker, init_models, upgrade_database
 from app.events.bus import EventBus
 from app.monitors.ping_monitor import PingMonitor
 from app.scheduler.monitor_scheduler import MonitorScheduler
@@ -48,6 +48,8 @@ def _build_lifespan(settings: Settings, event_bus: EventBus, scheduler: MonitorS
             # through `alembic upgrade head` (Step 3) — never create_all()
             # — so schema history stays auditable outside development.
             await init_models(settings.database, echo=settings.app_debug)
+        else:
+            upgrade_database(settings.database)
 
         if settings.monitors_enabled:
             session_factory = get_sessionmaker(settings.database, echo=settings.app_debug)

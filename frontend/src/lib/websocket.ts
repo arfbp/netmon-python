@@ -24,17 +24,31 @@ export class MonitoringSocket {
   private statusHandlers = new Set<StatusHandler>();
   private reconnectAttempt = 0;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private disconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private intentionallyClosed = false;
 
   connect(): void {
+    if (this.disconnectTimer) {
+      clearTimeout(this.disconnectTimer);
+      this.disconnectTimer = null;
+    }
     this.intentionallyClosed = false;
+
+    if (this.socket && this.socket.readyState <= WebSocket.OPEN) {
+      return;
+    }
+
     this.open();
   }
 
   disconnect(): void {
     this.intentionallyClosed = true;
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
-    this.socket?.close();
+    if (this.disconnectTimer) clearTimeout(this.disconnectTimer);
+    this.disconnectTimer = setTimeout(() => {
+      this.socket?.close();
+      this.disconnectTimer = null;
+    }, 250);
   }
 
   on(type: string, handler: MessageHandler): () => void {

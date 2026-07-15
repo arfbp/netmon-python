@@ -27,6 +27,8 @@ RUN addgroup --system app \
     && chown -R app:app /app
 
 COPY --from=builder /wheels /wheels
+COPY backend/alembic.ini ./alembic.ini
+COPY backend/alembic ./alembic
 
 RUN pip install --no-cache-dir --no-compile /wheels/*.whl \
     && rm -rf /wheels
