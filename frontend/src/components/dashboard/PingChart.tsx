@@ -6,8 +6,13 @@ import { CHART_COLORS } from "@/lib/colors";
 import type { TargetState } from "@/store/pingStore";
 
 export function PingChart({ targets }: { targets: TargetState[] }) {
+  const chartKey = targets
+    .map((target) => `${target.target}:${target.updatedAt}:${target.history.length}`)
+    .join("|");
+
   const option = useMemo(() => {
     const series = targets.map((target, index) => ({
+      id: target.target,
       name: target.target,
       type: "line" as const,
       showSymbol: false,
@@ -64,7 +69,13 @@ export function PingChart({ targets }: { targets: TargetState[] }) {
             Waiting for the first ping results…
           </div>
         ) : (
-          <ReactECharts option={option} style={{ height: 280 }} notMerge={false} lazyUpdate />
+          <ReactECharts
+            key={chartKey}
+            option={option}
+            style={{ height: 280 }}
+            notMerge
+            lazyUpdate={false}
+          />
         )}
       </CardContent>
     </Card>
