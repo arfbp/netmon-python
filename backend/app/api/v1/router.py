@@ -8,8 +8,9 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.api.v1 import health, ping
+from app.api.v1 import health, incidents, ping
 
 api_v1_router = APIRouter()
 api_v1_router.include_router(health.router)
+api_v1_router.include_router(incidents.router)
 api_v1_router.include_router(ping.router)

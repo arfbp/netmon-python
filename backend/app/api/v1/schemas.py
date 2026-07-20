@@ -13,7 +13,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from app.core.enums import Severity
+from app.core.enums import IncidentStatus, IncidentType, MonitorType, Severity
 
 
 class PingLatestResponse(BaseModel):
@@ -25,3 +25,16 @@ class PingLatestResponse(BaseModel):
     rolling_avg_ms: float | None
     packet_loss_pct: float
     severity: Severity
+
+
+class IncidentResponse(BaseModel):
+    id: int
+    incident_type: IncidentType
+    status: IncidentStatus
+    severity: Severity
+    triggering_monitor: MonitorType
+    started_at: datetime
+    recovered_at: datetime | None
+    summary: str
+    context: dict | None
+    target: str | None = None

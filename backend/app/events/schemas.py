@@ -14,7 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
-from app.core.enums import Severity
+from app.core.enums import IncidentStatus, IncidentType, Severity
 
 
 @dataclass(frozen=True, slots=True)
@@ -38,3 +38,15 @@ class PingResultEvent(DomainEvent):
     rolling_avg_ms: float | None = None
     packet_loss_pct: float = 0.0
     severity: Severity = Severity.EXCELLENT
+
+
+@dataclass(frozen=True, slots=True)
+class IncidentEvent(DomainEvent):
+    incident_id: int = 0
+    incident_type: IncidentType = IncidentType.INTERNET_DOWN
+    status: IncidentStatus = IncidentStatus.STARTED
+    severity: Severity = Severity.EXCELLENT
+    target: str = ""
+    summary: str = ""
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    recovered_at: datetime | None = None

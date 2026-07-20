@@ -24,6 +24,7 @@ from app.database.session import dispose_engine, get_sessionmaker, init_models, 
 from app.events.bus import EventBus
 from app.monitors.ping_monitor import PingMonitor
 from app.scheduler.monitor_scheduler import MonitorScheduler
+from app.services.incident_service import IncidentService
 from app.websocket.connection_manager import ConnectionManager
 from app.websocket.event_forwarder import register_event_forwarding
 
@@ -51,8 +52,13 @@ def _build_lifespan(settings: Settings, event_bus: EventBus, scheduler: MonitorS
         else:
             upgrade_database(settings.database)
 
+        session_factory = get_sessionmaker(settings.database, echo=settings.app_debug)
+        incident_service = IncidentService(settings, session_factory, event_bus)
+        await incident_service.bootstrap()
+
+        app.state.incident_service = incident_service
+
         if settings.monitors_enabled:
-            session_factory = get_sessionmaker(settings.database, echo=settings.app_debug)
             scheduler.register(PingMonitor(settings, session_factory, event_bus))
             scheduler.start_all()
             logger.info(
